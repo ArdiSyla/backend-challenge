@@ -1,21 +1,31 @@
-
+import Source from "../models/Source.js";
+import { ObjectId } from 'mongodb';
 
 // Define the routes
 export default async function sourceRoutes(fastify, options) {
   // POST /add-source
   fastify.post('/add-source', async (request, reply) => {
-    return { message: 'Add source endpoint' };
+    const sourceData = request.body;
+    const sourceId = await Source.addSource(sourceData);
+    return { message: 'Source added successfully', sourceId }
   });
 
   // DELETE /remove-source/:id
   fastify.delete('/remove-source/:id', async (request, reply) => {
     const { id } = request.params;
-    return { message: `Remove source with id: ${id}` };
+    const objectId = new ObjectId(id);
+    const isDeleted = await Source.removeSource(objectId);
+    if (isDeleted) {
+      return { message: `Source with id: ${id} removed successfully` };
+    } else {
+      reply.status(404).send({ message: 'Source not found' });
+    }
   });
 
   // GET /sources
   fastify.get('/sources', async (request, reply) => {
-    return { message: 'List all sources' };
+      const sources = await Source.listSources();
+    return { sources };
   });
 }
 
