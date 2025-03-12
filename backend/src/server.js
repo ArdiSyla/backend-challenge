@@ -1,5 +1,7 @@
 import Fastify from 'fastify';
 import dotenv from 'dotenv';
+import sourceRoutes from './routes/sourceRoutes.js';
+
 
 // Load environment variables
 dotenv.config();
@@ -8,6 +10,9 @@ dotenv.config();
 const fastify = Fastify({
   logger: true,
 });
+
+// Register routes
+fastify.register(sourceRoutes);
 
 // Start the server
 const start = async () => {
