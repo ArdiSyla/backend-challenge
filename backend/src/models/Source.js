@@ -1,5 +1,7 @@
 import { connectToDatabase } from '../db/connection.js';
 import crypto from 'crypto';
+import { validateGoogleCredentials } from '../services/googleAuth.js';
+
 
 // Encryption key (store this securely in environment variables)
 const encryptionKey = process.env.ENCRYPTION_KEY || 'default-encryption-key';
@@ -27,6 +29,13 @@ export default class Source {
   // Add a new source
   static async addSource(sourceData) {
     const db = await connectToDatabase();
+
+     // Validate Google Workspace credentials
+     const isValid = await validateGoogleCredentials(sourceData.credentials);
+     
+     if (!isValid) {
+       throw new Error('Invalid Google Workspace credentials');
+     }
 
     // Encrypt sensitive credentials
     const encryptedCredentials = {

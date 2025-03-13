@@ -5,10 +5,15 @@ import { ObjectId } from 'mongodb';
 export default async function sourceRoutes(fastify, options) {
   // POST /add-source
   fastify.post('/add-source', async (request, reply) => {
-    const sourceData = request.body;
-    const sourceId = await Source.addSource(sourceData);
-    return { message: 'Source added successfully', sourceId }
+    try {
+      const sourceData = request.body;
+      const sourceId = await Source.addSource(sourceData);
+      return { message: 'Source added successfully', sourceId };
+    } catch (err) {
+      reply.status(400).send({ message: err.message });
+    }
   });
+
 
   // DELETE /remove-source/:id
   fastify.delete('/remove-source/:id', async (request, reply) => {
