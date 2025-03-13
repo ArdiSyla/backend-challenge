@@ -56,6 +56,10 @@ export default class Source {
   // Remove a source by ID
   static async removeSource(id) {
     const db = await connectToDatabase();
+    const source = await db.collection(this.collectionName).findOne({ _id: id });
+    if (!source) {
+      throw new Error('Source not found');
+    }
     const result = await db.collection(this.collectionName).deleteOne({ _id: id });
     return result.deletedCount > 0;
   }

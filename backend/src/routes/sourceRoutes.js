@@ -17,14 +17,20 @@ export default async function sourceRoutes(fastify, options) {
 
   // DELETE /remove-source/:id
   fastify.delete('/remove-source/:id', async (request, reply) => {
-    const { id } = request.params;
-    const objectId = new ObjectId(id);
-    const isDeleted = await Source.removeSource(objectId);
-    if (isDeleted) {
-      return { message: `Source with id: ${id} removed successfully` };
-    } else {
-      reply.status(404).send({ message: 'Source not found' });
-    }
+
+    try {
+      const { id } = request.params;
+      const objectId = new ObjectId(id);
+      const isDeleted = await Source.removeSource(objectId);
+
+      if (isDeleted) {
+          return { message: `Source with id: ${id} removed successfully` };
+      } else {
+          return reply.status(404).send({ message: 'Source not found' });
+      }
+  } catch (err) {
+      return reply.status(400).send({ message: err.message });
+  }
   });
 
   // GET /sources
