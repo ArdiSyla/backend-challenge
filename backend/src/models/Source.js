@@ -3,25 +3,31 @@ import crypto from 'crypto';
 import { validateGoogleCredentials } from '../services/googleAuth.js';
 
 
-// Encryption key (store this securely in environment variables)
+// Ensure the key is **exactly** 32 bytes for AES-256
 const encryptionKey = process.env.ENCRYPTION_KEY || 'default-encryption-key';
+const key = crypto.createHash('sha256').update(encryptionKey).digest(); 
+const iv = Buffer.from('0000000000000000', 'utf8'); // Must be 16 bytes
 
-// Function to encrypt data
+// Function to encrypt text
 function encrypt(text) {
-  const cipher = crypto.createCipher('aes-256-cbc', encryptionKey);
+  const cipher = crypto.createCipheriv('aes-256-cbc', key, iv);
   let encrypted = cipher.update(text, 'utf8', 'hex');
   encrypted += cipher.final('hex');
   return encrypted;
 }
 
-// Function to decrypt data
+// Function to decrypt text
 function decrypt(encryptedText) {
-  const decipher = crypto.createDecipher('aes-256-cbc', encryptionKey);
-  let decrypted = decipher.update(encryptedText, 'hex', 'utf8');
-  decrypted += decipher.final('utf8');
-  return decrypted;
+  try {
+    const decipher = crypto.createDecipheriv('aes-256-cbc', key, iv);
+    let decrypted = decipher.update(encryptedText, 'hex', 'utf8');
+    decrypted += decipher.final('utf8');
+    return decrypted;
+  } catch (err) {
+    console.error('Decryption Failed:', err.message);
+    throw new Error('Decryption failed');
+  }
 }
-
 // Source model
 export default class Source {
   static collectionName = 'sources';

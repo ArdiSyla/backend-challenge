@@ -35,8 +35,13 @@ export default async function sourceRoutes(fastify, options) {
 
   // GET /sources
   fastify.get('/sources', async (request, reply) => {
+    try {
       const sources = await Source.listSources();
-    return { sources };
+      return reply.send({ sources });
+  } catch (err) {
+      console.error("Failed to fetch sources:", err.message); // Debugging log
+      return reply.status(500).send({ message: 'Failed to fetch sources', error: err.message });
+  }
   });
 }
 
